@@ -34,8 +34,8 @@
   $makefile .= "  install exec \"killall -9 TERMINATE_APP\"\n";
 
   $packageInfo = [
-    'packageName' => !isset($_POST['packageName']) || trim($_POST['packageName']) === '' ? 'SampleTweak' : $_POST['packageName'],
-    'projectName' => !isset($_POST['projectName']) || trim($_POST['projectName']) === '' ? 'com.yourcompany.tweak' : $_POST['projectName'],
+    'packageName' => !isset($_POST['packageName']) || trim($_POST['packageName']) === '' ? 'com.yourcompany.tweak' : $_POST['packageName'],
+    'projectName' => !isset($_POST['projectName']) || trim($_POST['projectName']) === '' ? 'SampleTweak' : $_POST['projectName'],
     'maintainer' => !isset($_POST['maintainer']) || trim($_POST['maintainer']) === '' ? 'Someone' : $_POST['maintainer'],
     'substrateFilter' => !isset($_POST['substrateFilter']) || trim($_POST['substrateFilter']) === '' ? 'com.apple.springboard' : $_POST['substrateFilter'],
     'terminateApp' => !isset($_POST['terminateApp']) || trim($_POST['terminateApp']) === '' ? 'SpringBoard' : $_POST['terminateApp'],
@@ -65,4 +65,3 @@
   header("Expires: 0"); 
   readfile($zipFileName);
   unlink($zipFileName);
-  
