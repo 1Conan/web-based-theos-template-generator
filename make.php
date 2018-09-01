@@ -9,29 +9,10 @@
     $charactersLength = strlen($characters);
     $randomString = '';
     for ($i = 0; $i < $length; $i++) {
-        $randomString .= $characters[rand(0, $charactersLength - 1)];
+        $randomString .= $characters[random_int(0, $charactersLength - 1)];
     }
     return $randomString;
   }
-
-  $filter = "{ Filter = { Bundles = ( \"FILTER_HERE\" ); }; }";
-
-  $control = "Package: PACKAGE_NAME\n";
-  $control .= "Name: PROJECT_NAME\n";
-  $control .= "Depends: mobilesubstrate\n";
-  $control .= "Version: 0.0.1\n";
-  $control .= "Architecture: iphoneos-arm\n";
-  $control .= "Description: An awesome MobileSubstrate tweak!\n";
-  $control .= "Maintainer: MAINTAINER\n";
-  $control .= "Author: MAINTAINER\n";
-  $control .= "Section: Tweaks\n";
-
-  $makefile = "include $(THEOS)/makefiles/common.mk\n\n";
-  $makefile .= "TWEAK_NAME = PROJECT_NAME\n";
-  $makefile .= "PROJECT_NAME_FILES = Tweak.xm\n\n";
-  $makefile .= "include $(THEOS_MAKE_PATH)/tweak.mk\n\n";
-  $makefile .= "after-install::\n";
-  $makefile .= "  install exec \"killall -9 TERMINATE_APP\"\n";
 
   $packageInfo = [
     'packageName' => !isset($_POST['packageName']) || trim($_POST['packageName']) === '' ? 'com.yourcompany.tweak' : $_POST['packageName'],
@@ -41,14 +22,28 @@
     'terminateApp' => !isset($_POST['terminateApp']) || trim($_POST['terminateApp']) === '' ? 'SpringBoard' : $_POST['terminateApp'],
   ];
 
-  $filter = str_replace('FILTER_HERE', $packageInfo['substrateFilter'], $filter);
+  $filter = '{ Filter = { Bundles = ( ' . $packageInfo['substrateFilter'] . ' ); }; }';
+  
+  $aControl = array(
+    'Package: ' . $packageInfo['packageName'],
+    'Name: ' . $packageInfo['projectName'],
+    'Depends: ' . 'mobilesubstrate',
+    'Version: ' . '0.0.1',
+    'Architecture: ' . 'iphoneos-arm',
+    'Description: ' . 'An awesome MobileSubstrate tweak!',
+    'Maintainer: ' . $packageInfo['maintainer'],
+    'Author: ' . $packageInfo['maintainer'],
+    'Section: ' . 'Tweaks',
+  );
 
-  $control = str_replace('PACKAGE_NAME', $packageInfo['packageName'], $control);
-  $control = str_replace('PROJECT_NAME', $packageInfo['projectName'], $control);
-  $control = str_replace('MAINTAINER', $packageInfo['maintainer'], $control);
-
-  $makefile = str_replace('PROJECT_NAME', str_replace(' ', '_', $packageInfo['projectName']), $makefile);
-  $makefile = str_replace('TERMINATE_APP', $packageInfo['terminateApp'], $makefile);
+  $aMakeFile = array(
+    'include $(THEOS)/makefiles/common.mk'. PHP_EOL,
+    'TWEAK_NAME =' . str_replace(' ', '_', $packageInfo['projectName']),
+    'PROJECT_NAME_FILES = Tweak.xm'. PHP_EOL,
+    'include $(THEOS_MAKE_PATH)/tweak.mk' . PHP_EOL,
+    'after-install::',
+    '  install exec "killall -9 ' . $packageInfo['terminateApp'] . '"'
+  );
 
   $zipFileName = str_replace(' ', '_', $packageInfo['projectName']).'-'.generateRandomString().'.zip';
 
@@ -56,8 +51,8 @@
   $zip->open($zipFileName, ZipArchive::CREATE);
   $zip->addFromString($packageInfo['projectName'].'.plist', $filter);
   $zip->addFromString('Tweak.xm', '//Sample Tweak');
-  $zip->addFromString('control', $control);
-  $zip->addFromString('Makefile', $makefile);
+  $zip->addFromString('control', implode(PHP_EOL, $aControl));
+  $zip->addFromString('Makefile', implode(PHP_EOL, $aMakeFile));
   $zip->close();
   header("Content-type: application/zip"); 
   header("Content-Disposition: attachment; filename=$zipFileName"); 
