@@ -65,4 +65,4 @@
   header("Expires: 0"); 
   readfile($zipFileName);
   unlink($zipFileName);
-  exit;
+  
